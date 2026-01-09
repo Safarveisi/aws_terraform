@@ -55,7 +55,7 @@ resource "aws_route_table_association" "example" {
   route_table_id = aws_route_table.example.id
 }
 
-resource "aws_internet_gateway" "sample" {
+resource "aws_internet_gateway" "example" {
   vpc_id = aws_vpc.sample.id
 
   tags = {
@@ -66,7 +66,7 @@ resource "aws_internet_gateway" "sample" {
 resource "aws_route" "example" {
   route_table_id         = aws_route_table.example.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.sample.id
+  gateway_id             = aws_internet_gateway.example.id
 }
 
 
@@ -118,7 +118,7 @@ resource "aws_instance" "example" {
   }
 }
 
-resource "aws_s3_bucket_policy" "example_bucket_policy" {
+resource "aws_s3_bucket_policy" "example" {
   bucket = "sajad-aws-s3-bucket"
   policy = jsonencode({
     Version = "2012-10-17"
