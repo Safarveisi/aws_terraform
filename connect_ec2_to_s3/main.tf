@@ -113,6 +113,7 @@ resource "aws_instance" "example" {
         host = self.public_ip
     }
   }
+  user_data = filebase64("script.sh")
   tags = {
     Name = "example"
   }
