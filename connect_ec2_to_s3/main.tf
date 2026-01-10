@@ -26,7 +26,7 @@ resource "aws_iam_instance_profile" "example" {
 }
 
 resource "aws_vpc" "sample" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = "${var.base_cidr}"
   tags = {
     Name = "example"
   }
@@ -34,7 +34,7 @@ resource "aws_vpc" "sample" {
 
 resource "aws_subnet" "sample" {
   vpc_id            = aws_vpc.sample.id
-  cidr_block        = "10.0.0.0/24"
+  cidr_block        = cidrsubnet("${var.base_cidr}", 8, 0)
   availability_zone = "${var.aws_region}a"
 
   tags = {
