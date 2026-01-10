@@ -1,2 +1,3 @@
 #!/bin/bash
-echo ECS_CLUSTER=default >> /home/ubuntu/ecs.config
+mkdir -p /etc/ecs
+echo ECS_CLUSTER=default >> /etc/ecs/ecs.config
