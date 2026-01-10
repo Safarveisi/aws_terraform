@@ -17,7 +17,7 @@ resource "aws_iam_role" "example" {
 
 resource "aws_iam_role_policy_attachment" "example" {
   role = aws_iam_role.example.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
 resource "aws_iam_instance_profile" "example" {
@@ -25,15 +25,15 @@ resource "aws_iam_instance_profile" "example" {
   role = aws_iam_role.example.name
 }
 
-resource "aws_vpc" "sample" {
+resource "aws_vpc" "example" {
   cidr_block = "${var.base_cidr}"
   tags = {
     Name = "example"
   }
 }
 
-resource "aws_subnet" "sample" {
-  vpc_id            = aws_vpc.sample.id
+resource "aws_subnet" "example" {
+  vpc_id            = aws_vpc.example.id
   cidr_block        = cidrsubnet("${var.base_cidr}", 8, 0)
   availability_zone = "${var.aws_region}a"
 
@@ -43,7 +43,7 @@ resource "aws_subnet" "sample" {
 }
 
 resource "aws_route_table" "example" {
-  vpc_id = aws_vpc.sample.id
+  vpc_id = aws_vpc.example.id
 
   tags = {
     Name = "example"
@@ -51,12 +51,12 @@ resource "aws_route_table" "example" {
 }
 
 resource "aws_route_table_association" "example" {
-  subnet_id      = aws_subnet.sample.id
+  subnet_id      = aws_subnet.example.id
   route_table_id = aws_route_table.example.id
 }
 
 resource "aws_internet_gateway" "example" {
-  vpc_id = aws_vpc.sample.id
+  vpc_id = aws_vpc.example.id
 
   tags = {
     Name = "example"
@@ -69,12 +69,34 @@ resource "aws_route" "example" {
   gateway_id             = aws_internet_gateway.example.id
 }
 
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = aws_vpc.example.id
+  service_name      = "com.amazonaws.${var.aws_region}.s3"
+  vpc_endpoint_type = "Gateway"
+
+  route_table_ids = [aws_route_table.example.id]
+
+  tags = {
+    Name = "example"
+  }
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+        {
+            Effect = "Allow"
+            Principal = "*"
+            Action = "*"
+            Resource = "*"
+        }
+    ]
+  })
+}
 
 resource "aws_security_group" "example" {
   name = "allow_traffic"
   description = "Allow ssh inbound traffic and all outbound traffic"
-  vpc_id = aws_vpc.sample.id
-
+  vpc_id = aws_vpc.example.id
   ingress {
     description = "SSH"
     from_port   = 22
@@ -98,7 +120,7 @@ resource "aws_instance" "example" {
   ami = "ami-004e960cde33f9146"
   instance_type = "t2.micro" 
   key_name = "main-key"
-  subnet_id = aws_subnet.sample.id
+  subnet_id = aws_subnet.example.id
   vpc_security_group_ids = [aws_security_group.example.id]
   associate_public_ip_address = true
   iam_instance_profile = aws_iam_instance_profile.example.name
@@ -125,18 +147,18 @@ resource "aws_s3_bucket_policy" "example" {
     Version = "2012-10-17"
     Statement = [
         {
-            Effect = "Allow",
-            Principal = {
-                AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${aws_iam_role.example.name}"
-            }
-            Action = [
-                "s3:GetObject",
-                "s3:ListBucket"
-            ]
+            Effect = "Deny"
+            Principal = "*"
+            Action = "s3:*"
             Resource = [
                 "arn:aws:s3:::sajad-aws-s3-bucket",
                 "arn:aws:s3:::sajad-aws-s3-bucket/*"
             ]
+            Condition = {
+                StringEquals = {
+                    "aws:SourceVpce" = aws_vpc_endpoint.s3.id
+                }
+            }
         }
     ]
   })
