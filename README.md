@@ -6,4 +6,4 @@
 
 ## Deploying your application using ECS Fargate and ALB
 
-![architecture](./assets/ec2_to_s3.png)
+![architecture](./assets/ecs_and_alb.png)
