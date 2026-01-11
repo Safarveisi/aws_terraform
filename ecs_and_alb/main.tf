@@ -100,7 +100,7 @@ resource "aws_security_group" "ecs_security_group" {
   }
 
   tags = {
-    Name = "example"
+    Name = "ECS container instance SG"
   }
 }
 
