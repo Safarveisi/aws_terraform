@@ -44,17 +44,17 @@ resource "aws_route_table_association" "public_subnet_association" {
   route_table_id = aws_route_table.public_rt.id
 }   
 
-resource "aws_security_group" "security_group" {
-  name        = "ecs-security-group"
+resource "aws_security_group" "security_group_instance" {
+  name        = "ecs-security-group-instance"
   description = "Security group for ECS instances"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all inbound traffic"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    security_groups = [aws_security_group.security_group_alb.id]
+    description = "Allow all inbound traffic from ALB"
   }
 
   egress {
@@ -66,6 +66,35 @@ resource "aws_security_group" "security_group" {
   }
 
   tags = {
-    Name = "ecs-security-group"
+    Name = "ecs-security-group-instance"
+  }
+}
+
+resource "aws_security_group" "security_group_alb" {
+  name        = "ecs-security-group-alb"
+  description = "Security group for ALB"
+  vpc_id      = aws_vpc.main.id
+
+  dynamic ingress {
+    for_each = [80, 443]
+    content {
+    from_port   = ingress.value
+    to_port     = ingress.value
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow inbound traffic on port ${ingress.value}"
+    }
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow all outbound traffic"
+  }
+
+  tags = {
+    Name = "ecs-security-group-alb"
   }
 }

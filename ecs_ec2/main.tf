@@ -66,13 +66,12 @@ resource "aws_ecs_service" "ecs_service" {
 
   network_configuration {
     subnets         = aws_subnet.public_subnets[*].id
-    security_groups = [aws_security_group.security_group.id]
+    security_groups = [aws_security_group.security_group_instance.id]
   }
 
-  force_new_deployment = true
-  
-  placement_constraints {
-    type = "distinctInstance"
+  ordered_placement_strategy {
+    type = "spread"
+    field = "attribute:ecs.availability-zone"
   }
 
   capacity_provider_strategy {
@@ -87,5 +86,8 @@ resource "aws_ecs_service" "ecs_service" {
     container_port   = 80
   }
 
+  lifecycle {
+    ignore_changes = [ desired_count ]
+  }
   depends_on = [aws_autoscaling_group.ecs_asg]
 }

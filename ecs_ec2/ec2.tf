@@ -8,7 +8,7 @@ resource "aws_launch_template" "ecs_lt" {
   instance_type = "t2.micro"
 
   key_name               = "main-key"
-  vpc_security_group_ids = [aws_security_group.security_group.id]
+  vpc_security_group_ids = [aws_security_group.security_group_instance.id]
   iam_instance_profile {
     name = aws_iam_instance_profile.ecs_instance_profile.name
   }
@@ -60,7 +60,7 @@ resource "aws_lb" "ecs_alb" {
   name               = "ecs-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.security_group.id]
+  security_groups    = [aws_security_group.security_group_alb.id]
   subnets            = aws_subnet.public_subnets[*].id
 
   tags = {
