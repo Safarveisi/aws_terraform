@@ -7,3 +7,5 @@
 ## Deploying your application using ECS Fargate and ALB
 
 ![architecture](./assets/ecs_and_alb.png)
+
+## Deploying your application using ECS with ASG provider
