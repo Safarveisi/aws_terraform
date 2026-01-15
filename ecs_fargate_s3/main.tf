@@ -1,7 +1,3 @@
-resource "aws_sqs_queue" "failed_invocations" {
-  name = "eventbridge-ecs-dlq"
-}
-
 resource "aws_ecs_cluster" "my_cluster" {
   name = "example-cluster"
 }
