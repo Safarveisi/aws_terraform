@@ -87,8 +87,8 @@ resource "aws_iam_role_policy" "eventbridge_ecs_policy" {
         Effect   = "Allow",
         Action   = "iam:PassRole",
         Resource = [
-          aws_iam_role.ecs_task_execution.arn,
-          aws_iam_role.ecs_task.arn
+          aws_iam_role.ecs_task.arn,
+          aws_iam_role.ecs_task_execution.arn
         ]
       },
       {
@@ -98,6 +98,29 @@ resource "aws_iam_role_policy" "eventbridge_ecs_policy" {
         Condition = {
           "ArnEquals" : {
             "ecs:cluster" : aws_ecs_cluster.my_cluster.arn
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_sqs_queue_policy" "allow_eventbridge" {
+  queue_url = aws_sqs_queue.failed_invocations.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid    = "AllowEventBridgeToSendMessages",
+        Effect = "Allow",
+        Principal = {
+          Service = "events.amazonaws.com"
+        },
+        Action   = "sqs:SendMessage",
+        Resource = aws_sqs_queue.failed_invocations.arn,
+        Condition = {
+          ArnEquals = {
+            "aws:SourceArn" = aws_cloudwatch_event_rule.run_every_minute.arn
           }
         }
       }

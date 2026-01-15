@@ -47,4 +47,7 @@ resource "aws_cloudwatch_event_target" "ecs_my_command_target" {
       assign_public_ip = true
     }
   }
+  dead_letter_config {
+    arn = aws_sqs_queue.failed_invocations.arn
+  }
 }
