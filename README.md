@@ -9,3 +9,5 @@
 ![architecture](./assets/ecs_and_alb.png)
 
 ## Deploying your application using ECS with ASG provider
+
+## Fargate with S3 access and scheduling via cloud watch
