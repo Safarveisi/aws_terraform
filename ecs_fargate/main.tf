@@ -190,7 +190,7 @@ resource "aws_ecs_service" "ecs_service" {
   desired_count   = 1
   network_configuration {
     subnets         = [aws_subnet.public_subnets[0].id, aws_subnet.public_subnets[1].id]
-    assign_public_ip = true
+    assign_public_ip = false
     security_groups = [aws_security_group.ecs_security_group.id]
   }
   launch_type = "FARGATE"
