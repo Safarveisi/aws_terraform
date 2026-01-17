@@ -56,7 +56,7 @@ resource "aws_cloudwatch_event_target" "ecs_my_command_target" {
     task_definition_arn = aws_ecs_task_definition.caller.arn
     launch_type         = "FARGATE"
     network_configuration {
-      subnets          = [aws_subnet.this[0].id]
+      subnets          = aws_subnet.this[*].id
       security_groups  = [aws_security_group.fastapi_caller.id]
       assign_public_ip = true
     }
@@ -134,11 +134,11 @@ resource "aws_ecs_service" "fastapi" {
   task_definition = aws_ecs_task_definition.fastapi.arn
   desired_count   = 1
   launch_type     = "FARGATE"
-
+  wait_for_steady_state = true
   force_new_deployment = true
 
   network_configuration {
-    subnets          = [ aws_subnet.this[0].id ]
+    subnets          = aws_subnet.this[*].id
     security_groups  = [ aws_security_group.fastapi_writer.id ]
     assign_public_ip = true
   }
