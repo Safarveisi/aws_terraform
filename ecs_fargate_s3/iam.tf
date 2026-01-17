@@ -81,7 +81,7 @@ resource "aws_iam_role_policy" "eventbridge_ecs_policy" {
       {
         Effect   = "Allow",
         Action   = "ecs:RunTask",
-        Resource = aws_ecs_task_definition.scheduled_my_command.arn
+        Resource = aws_ecs_task_definition.caller.arn
       },
       {
         Effect   = "Allow",
@@ -97,7 +97,7 @@ resource "aws_iam_role_policy" "eventbridge_ecs_policy" {
         Resource = "*",
         Condition = {
           "ArnEquals" : {
-            "ecs:cluster" : aws_ecs_cluster.my_cluster.arn
+            "ecs:cluster" : aws_ecs_cluster.caller.arn
           }
         }
       }

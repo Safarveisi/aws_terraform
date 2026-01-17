@@ -35,17 +35,35 @@ resource "aws_route_table_association" "this" {
   route_table_id = aws_route_table.this.id
 }
 
-resource "aws_security_group" "ecs_tasks" {
-  name        = "${local.name_prefix}-instance-sg"
+resource "aws_security_group" "fastapi_caller" {
+  name        = "fastapi-caller-sg"
   description = "Security group for container instances"
   vpc_id      = aws_vpc.this.id
 }
 
-resource "aws_vpc_security_group_egress_rule" "allow_outbound" {
-  security_group_id = aws_security_group.ecs_tasks.id
+resource "aws_vpc_security_group_egress_rule" "outbound" {
+  security_group_id = aws_security_group.fastapi_caller.id
   cidr_ipv4 = "0.0.0.0/0"
   ip_protocol = "-1"
-  from_port = 0
-  to_port   = 0
   description = "Allow all outbound traffic"
+}
+
+resource "aws_security_group" "fastapi_writer" {
+  name        = "fastapi-writer-sg"
+  description = "Security group for container instances"
+  vpc_id      = aws_vpc.this.id
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    security_groups = [ aws_security_group.fastapi_caller.id ]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
