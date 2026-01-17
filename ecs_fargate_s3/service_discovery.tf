@@ -1,3 +1,4 @@
+# Service discovery for service in Cluster 2
 resource "aws_service_discovery_private_dns_namespace" "this" {
   name = "service.local"
   description = "Private namespace for ECS services"

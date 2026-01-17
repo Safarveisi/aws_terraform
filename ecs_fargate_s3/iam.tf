@@ -1,3 +1,4 @@
+# Role your ECS cluster needs to spin up container instances (e.g., getting docker images or ssm parameters)
 resource "aws_iam_role" "ecs_task_execution" {
   name = "${local.name_prefix}-task-execution-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_doc.json
@@ -30,6 +31,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_foundational" {
   role       = aws_iam_role.ecs_task_execution.name
 }
 
+# Role your ECS cluster's instances need during run time (e.g., access to a S3 bucket)
 resource "aws_iam_role" "ecs_task" {
   name = "${local.name_prefix}-task-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_doc.json
@@ -57,6 +59,7 @@ resource "aws_iam_role_policy" "ecs_task_s3" {
   })
 }
 
+# Role your event bridge needs to trigger an ECS cluster's task
 resource "aws_iam_role" "eventbridge_invoke_ecs" {
   name = "eventbridge-ecs-invoke-role"
   assume_role_policy = jsonencode({
@@ -105,6 +108,7 @@ resource "aws_iam_role_policy" "eventbridge_ecs_policy" {
   })
 }
 
+# Role your SQS queue needs to notify failed invocations (eventbridge)
 resource "aws_sqs_queue_policy" "allow_eventbridge" {
   queue_url = aws_sqs_queue.failed_invocations.id
   policy = jsonencode({

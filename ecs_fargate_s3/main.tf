@@ -1,11 +1,14 @@
+# Cluster 1
 resource "aws_ecs_cluster" "caller" {
   name = "caller-cluster"
 }
 
+# Cluster 2
 resource "aws_ecs_cluster" "fastapi" {
   name = "fastapi-cluster"
 }
 
+# Task 1 - cluster 1
 resource "aws_ecs_task_definition" "caller" {
   family                   = "fastapi-caller"
   requires_compatibilities = ["FARGATE"]
@@ -43,6 +46,7 @@ resource "aws_ecs_task_definition" "caller" {
   ])
 }
 
+# Setup scheduling for Task 1
 resource "aws_cloudwatch_event_target" "ecs_my_command_target" {
   rule      = aws_cloudwatch_event_rule.run_every_minute.name
   role_arn  = aws_iam_role.eventbridge_invoke_ecs.arn
@@ -58,7 +62,7 @@ resource "aws_cloudwatch_event_target" "ecs_my_command_target" {
     }
   }
   
-  # This is only needed for debugging
+  # This is only needed for debugging (failed invocations)
   dead_letter_config {
     arn = aws_sqs_queue.failed_invocations.arn
   }
@@ -66,6 +70,7 @@ resource "aws_cloudwatch_event_target" "ecs_my_command_target" {
   depends_on = [ aws_ecs_service.fastapi ]
 }
 
+# Task 2 - cluster 2
 resource "aws_ecs_task_definition" "fastapi" {
   family                   = "fastapi-writer"
   requires_compatibilities = ["FARGATE"]
@@ -122,6 +127,7 @@ resource "aws_ecs_task_definition" "fastapi" {
   ])
 }
 
+# Service - Cluster 2
 resource "aws_ecs_service" "fastapi" {
   name            = "fastapi-writer-svc"
   cluster         = aws_ecs_cluster.fastapi.id
