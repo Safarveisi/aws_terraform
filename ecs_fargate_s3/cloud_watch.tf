@@ -1,6 +1,20 @@
+data "aws_cloudwatch_event_bus" "default" {
+  name = "default"
+}
+
 resource "aws_cloudwatch_event_rule" "run_every_minute" {
-  name                = "run-ecs-task-every-minute"
-  schedule_expression = "cron(* * * * ? *)"
+  name                = "s3-put-object"
+  event_bus_name = data.aws_cloudwatch_event_bus.default.name
+
+  event_pattern = jsonencode({
+    source = ["aws.s3"],
+    detail-type = ["Object Created"],
+    detail = {
+      bucket = {
+        name = ["sajad-aws-s3-bucket-2"]
+      }
+    }
+  })
 }
 
 resource "aws_cloudwatch_log_group" "caller" {
