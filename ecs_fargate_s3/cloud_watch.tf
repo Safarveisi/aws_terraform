@@ -2,8 +2,9 @@ data "aws_cloudwatch_event_bus" "default" {
   name = "default"
 }
 
-resource "aws_cloudwatch_event_rule" "run_every_minute" {
-  name                = "s3-put-object"
+# Trigger the ECS task in Cluster 1 whenever an object is created in a S3 bucket
+resource "aws_cloudwatch_event_rule" "run_on_s3_put_object" {
+  name  = "s3-put-object"
   event_bus_name = data.aws_cloudwatch_event_bus.default.name
 
   event_pattern = jsonencode({

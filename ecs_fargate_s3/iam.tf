@@ -124,7 +124,7 @@ resource "aws_sqs_queue_policy" "allow_eventbridge" {
         Resource = aws_sqs_queue.failed_invocations.arn,
         Condition = {
           ArnEquals = {
-            "aws:SourceArn" = aws_cloudwatch_event_rule.run_every_minute.arn
+            "aws:SourceArn" = aws_cloudwatch_event_rule.run_on_s3_put_object.arn
           }
         }
       }
