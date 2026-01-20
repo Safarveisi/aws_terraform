@@ -1,16 +1,16 @@
 resource "aws_vpc" "this" {
-  cidr_block = var.vpc_cidr_block
-  tags       = var.tags
+  cidr_block           = var.vpc_cidr_block
+  tags                 = var.tags
   enable_dns_hostnames = true
 }
 
 resource "aws_subnet" "this" {
-  count = length(var.subnets_cidr_blocks)
-  vpc_id     = aws_vpc.this.id
-  cidr_block = var.subnets_cidr_blocks[count.index]
-  availability_zone = element(data.aws_availability_zones.available.names, count.index)
+  count                   = length(var.subnets_cidr_blocks)
+  vpc_id                  = aws_vpc.this.id
+  cidr_block              = var.subnets_cidr_blocks[count.index]
+  availability_zone       = element(data.aws_availability_zones.available.names, count.index)
   map_public_ip_on_launch = true
-  tags       = var.tags
+  tags                    = var.tags
 }
 
 resource "aws_internet_gateway" "this" {
@@ -43,9 +43,9 @@ resource "aws_security_group" "fastapi_caller" {
 
 resource "aws_vpc_security_group_egress_rule" "outbound" {
   security_group_id = aws_security_group.fastapi_caller.id
-  cidr_ipv4 = "0.0.0.0/0"
-  ip_protocol = "-1"
-  description = "Allow all outbound traffic"
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
+  description       = "Allow all outbound traffic"
 }
 
 resource "aws_security_group" "fastapi_writer" {
@@ -54,10 +54,10 @@ resource "aws_security_group" "fastapi_writer" {
   vpc_id      = aws_vpc.this.id
 
   ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    security_groups = [ aws_security_group.fastapi_caller.id ]
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    security_groups = [aws_security_group.fastapi_caller.id]
   }
 
   egress {

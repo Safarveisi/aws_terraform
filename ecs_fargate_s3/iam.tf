@@ -1,6 +1,6 @@
 # Role your ECS cluster needs to spin up container instances (e.g., getting docker images or ssm parameters)
 resource "aws_iam_role" "ecs_task_execution" {
-  name = "${local.name_prefix}-task-execution-role"
+  name               = "${local.name_prefix}-task-execution-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_doc.json
 }
 
@@ -10,18 +10,18 @@ resource "aws_iam_role_policy" "ecs_task_execution_ssm" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-        {
-            Sid = "SSMAccess"
-            Effect = "Allow"
-            Action = [
-                "kms:Decrypt",
-                "ssm:GetParameters"
-            ]
-            Resource = [
-                "arn:aws:kms:${var.aws_region}:${data.aws_caller_identity.current.account_id}:key/c028cd8f-4a67-42ae-9054-bdf6c7999fde",
-                "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/docker/*"
-            ]
-        }
+      {
+        Sid    = "SSMAccess"
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "ssm:GetParameters"
+        ]
+        Resource = [
+          "arn:aws:kms:${var.aws_region}:${data.aws_caller_identity.current.account_id}:key/c028cd8f-4a67-42ae-9054-bdf6c7999fde",
+          "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/docker/*"
+        ]
+      }
     ]
   })
 }
@@ -33,7 +33,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_foundational" {
 
 # Role your ECS cluster's instances need during run time (e.g., access to a S3 bucket)
 resource "aws_iam_role" "ecs_task" {
-  name = "${local.name_prefix}-task-role"
+  name               = "${local.name_prefix}-task-role"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_doc.json
 }
 
@@ -43,18 +43,18 @@ resource "aws_iam_role_policy" "ecs_task_s3" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-        {
-            Sid = "S3Access"
-            Effect = "Allow"
-            Action = [
-                "s3:ListBucket",
-                "s3:PutObject"
-            ]
-            Resource = [
-                "arn:aws:s3:::${var.bucket_name}",
-                "arn:aws:s3:::${var.bucket_name}/*"
-            ]
-        }
+      {
+        Sid    = "S3Access"
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket",
+          "s3:PutObject"
+        ]
+        Resource = [
+          "arn:aws:s3:::${var.bucket_name}",
+          "arn:aws:s3:::${var.bucket_name}/*"
+        ]
+      }
     ]
   })
 }
@@ -87,8 +87,8 @@ resource "aws_iam_role_policy" "eventbridge_ecs_policy" {
         Resource = aws_ecs_task_definition.caller.arn
       },
       {
-        Effect   = "Allow",
-        Action   = "iam:PassRole",
+        Effect = "Allow",
+        Action = "iam:PassRole",
         Resource = [
           aws_iam_role.ecs_task.arn,
           aws_iam_role.ecs_task_execution.arn
